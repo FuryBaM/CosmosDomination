@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 29bd9a21439bfbc498769dfe42e0287e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - nodeSpawnPrefab: {fileID: 7387559396180822586, guid: b47e87df81d1ae141bf5e0dc4a5944a8, type: 3}
+  - nodeFlagPrefab: {fileID: 2054609543359250860, guid: 155fea073e108414b98caa65d6ae15bb, type: 3}
+  - nodePickupPrefab: {fileID: 9221347484066027367, guid: a07fb8a17bcb4e1408e5d6e0aa10626d, type: 3}
+  - nodeWaypointPrefab: {fileID: 4895907861594720817, guid: efbd6b4a823aadc4f8c490158221c82c, type: 3}
+  - nodeHoldpointPrefab: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
