@@ -1,9 +1,8 @@
 using System;
 using UnityEngine;
-public class Glock18 : BaseWeapon
-{
-    public bool IsAutomaticMode {  get; private set; }
 
+public class AssaultRifle : BaseWeapon
+{
     public override event Action OnAmmoChange;
     public override event Action OnFire;
     public override event Action OnReload;
@@ -13,35 +12,40 @@ public class Glock18 : BaseWeapon
     {
         Init();
     }
+
     public void Init()
     {
-        MaxAmmo = 15;
+        MaxAmmo = 25;
         CurrentAmmo = MaxAmmo;
-        Clip = 30;
-        ClipSize = 60;
+        Clip = 25;
+        ClipSize = 100;
         Range = 100;
         Damage = 6;
-        FireDelay = 0.15f;
-        ReloadTime = 1.5f;
-        WeaponType = WeaponTypeEnum.Pistol;
+        FireDelay = 0.1f;
+        ReloadTime = 2.8f;
+        WeaponType = WeaponTypeEnum.Assault;
     }
+
     public void WasteAmmo(int ammo)
     {
         ammo = Mathf.Clamp(ammo, 0, MaxAmmo);
         CurrentAmmo -= ammo;
         OnAmmoChange?.Invoke();
     }
+
     public void FullUpAmmo()
     {
         CurrentAmmo = MaxAmmo;
         OnAmmoChange?.Invoke();
     }
+
     public void WasteAddAmmo(int ammo)
     {
         ammo = Mathf.Clamp(ammo, 0, Clip);
         Clip -= ammo;
         OnAmmoChange?.Invoke();
     }
+
     public override bool AddAmmoToClip(int ammo)
     {
         if (Clip == ClipSize) return false;
@@ -50,6 +54,7 @@ public class Glock18 : BaseWeapon
         OnAmmoChange?.Invoke();
         return true;
     }
+
     public override void UsePrimaryAttack()
     {
         Fire();
@@ -73,7 +78,7 @@ public class Glock18 : BaseWeapon
         FireLastTime = Time.time;
 
         WasteAmmo(1);
-        Debug.Log("Glock18: Single shot fired.");
+        Debug.Log("Assault: Single shot fired.");
 
         // Выполняем RaycastAll, чтобы получить все столкновения вдоль луча
         Vector2 hitPoint = AttackPoint.right * Player.GetComponent<PlayerMovement>().FacingDirection * Range;
@@ -83,7 +88,7 @@ public class Glock18 : BaseWeapon
         {
             // Проверяем, является ли объект владельцем, и игнорируем его
             var target = hit2D.collider.GetComponent<Player>();
-            if (target != null && target != Player && !target.IsDead)  // Игнорируем владельца
+            if (target != null && target != Player && !target.IsDead) // Игнорируем владельца
             {
                 if (target.PlayerTeam == Player.PlayerTeam) continue;
                 Debug.Log($"Hit: {hit2D.collider.name}");
@@ -105,25 +110,22 @@ public class Glock18 : BaseWeapon
 
     public override void StartPrimaryAttack()
     {
-        if (IsAutomaticMode)
+        Fire();
+        if (CurrentAmmo <= 0)
         {
-            Debug.Log("Glock18 Primary Attack (Hold): Automatic fire in progress...");
+            Reload();
         }
+        Debug.Log("AssaultRifle: Automatic fire in progress...");
     }
 
     public override void StopPrimaryAttack()
     {
-        if (IsAutomaticMode)
-        {
-            Debug.Log("Glock18 Primary Attack (Hold): Stopping automatic fire.");
-        }
+        Debug.Log("AssaultRifle: Stopping automatic fire.");
     }
 
     public override void UseSecondaryAttack()
     {
-        // Переключение между режимами огня
-        IsAutomaticMode = !IsAutomaticMode;
-        Debug.Log($"Glock18 Secondary Attack: Mode switched to {(IsAutomaticMode ? "Automatic" : "Single Shot")}.");
+        // Нет дополнительной функции для вторичной атаки
     }
 
     public override void StartSecondaryAttack()
@@ -138,13 +140,14 @@ public class Glock18 : BaseWeapon
 
     public override bool CanHoldFire()
     {
-        return IsAutomaticMode; // Разрешить удержание только в автоматическом режиме
+        return true; // Удержание разрешено, так как это автоматическое оружие
     }
 
     public override void ApplyAttachment()
     {
-        Debug.Log("Glock18: Attachment applied.");
+        Debug.Log("AssaultRifle: Attachment applied.");
     }
+
     public override void Reload()
     {
         if (Clip <= 0 || CurrentAmmo == MaxAmmo || IsReloading())
@@ -158,6 +161,7 @@ public class Glock18 : BaseWeapon
         WasteAddAmmo(ammoToSubtract);
         OnReload?.Invoke();
     }
+
     private void OnDrawGizmos()
     {
         if (Player == null) return;

@@ -44,8 +44,8 @@ GameObject:
   - component: {fileID: 6099023197402757490}
   - component: {fileID: 4416203974626205243}
   - component: {fileID: 2249856213715888050}
-  - component: {fileID: 3392792728962510429}
   - component: {fileID: 7660295346728594502}
+  - component: {fileID: 8037389339483508205}
   m_Layer: 6
   m_Name: New Bot
   m_TagString: Player
@@ -150,6 +150,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1098f34c4b2619f4bb1a01fe8b867215, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerRotation: 0
+  tiltDirection: 0
+  xVelSlide: 0
   xAcc: 2.1
   xBrake: 1.7
   xCrouchBrake: 0.5
@@ -162,7 +165,7 @@ MonoBehaviour:
   yJumpBoost: 6
   yDjump: 10
   m_hand: {fileID: 792470407142992814}
-  FacingDirection: 0
+  FacingDirection: 1
   groundCheckRadius: 0.1
   groundLayer:
     serializedVersion: 2
@@ -195,7 +198,24 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!70 &3392792728962510429
+--- !u!114 &7660295346728594502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8637813019598691889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fdec974e06a9334593613c16882d12d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 6099023197402757490}
+  playerMovement: {fileID: 4416203974626205243}
+  handTransform: {fileID: 792470407142992814}
+  duck: 0
+  difficulty: 10
+--- !u!70 &8037389339483508205
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -205,7 +225,7 @@ CapsuleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 6200000, guid: ea50ddc63bfa92448a9ebeb9c513849c, type: 2}
+  m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -232,23 +252,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 1, y: 2}
   m_Direction: 0
---- !u!114 &7660295346728594502
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8637813019598691889}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fdec974e06a9334593613c16882d12d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 6099023197402757490}
-  playerMovement: {fileID: 4416203974626205243}
-  handTransform: {fileID: 792470407142992814}
-  duck: 0
-  diff: 10
 --- !u!1 &8813368982295941197
 GameObject:
   m_ObjectHideFlags: 0

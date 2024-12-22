@@ -190,7 +190,7 @@ public class Player : MonoBehaviour
     public void SelectWeapon(BaseWeapon baseWeapon)
     {
         if (IsDead) return;
-        if (baseWeapon == null || baseWeapon.WeaponType == WeaponTypeEnum.None) return;
+        if (baseWeapon == null) return;
         BaseWeapon previousWeapon;
         if (!KvpWeapons.ContainsKey(baseWeapon.WeaponType))
         {

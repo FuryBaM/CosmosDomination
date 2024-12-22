@@ -52,7 +52,7 @@ public class PlayerMovement : MonoBehaviour
     public bool Jumping { get; private set; } = false;
     private bool crouching = false;
     private bool dJump = false;
-    private float jumpDelay = 0.05f;
+    private float jumpDelay = 0.1f;
     private float lastJumpTime = 0f;
 
     private Rigidbody2D _rigidbody;

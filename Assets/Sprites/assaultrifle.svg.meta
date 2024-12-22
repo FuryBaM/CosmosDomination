@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d173862f5c0815a48a1ee5107dbecab2
+guid: 231eb03bbdd287740a6918dcc88fea46
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -20,7 +20,7 @@ ScriptedImporter:
   advancedMode: 0
   predefinedResolutionIndex: 0
   targetResolution: 2160
-  resolutionMultiplier: 100
+  resolutionMultiplier: 1
   stepDistance: 10
   samplingStepDistance: 100
   maxCordDeviationEnabled: 0
@@ -51,5 +51,5 @@ ScriptedImporter:
         y: 0
         width: 0
         height: 0
-      spriteID: e62c6ca57d99aa84891d80b3b31f5eec
+      spriteID: ff85a08ac399ce942a37fb96221561d3
     PhysicsOutlines: []

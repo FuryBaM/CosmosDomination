@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class SniperRifle : BaseWeapon
 {
-    public bool IsReloading { get; private set; }
     private float nextFireTime = 0f;
 
     public override event Action OnAmmoChange;
@@ -20,15 +19,15 @@ public class SniperRifle : BaseWeapon
     private void Init()
     {
         m_Name = "Sniper Rifle";
-        MaxAmmo = 5; // Магазин на 5 патронов
+        MaxAmmo = 3; // Магазин на 5 патронов
         CurrentAmmo = MaxAmmo;
-        Clip = 15; // Запасные патроны
-        ClipSize = 30;
-
+        Clip = 0; // Запасные патроны
+        ClipSize = 9;
         Range = 200; // Большая дальность
-        Damage = 100; // Высокий урон
+        Damage = 45; // Высокий урон
         FireDelay = 1.5f; // Медленный темп стрельбы (1 выстрел каждые 1.5 секунды)
-        WeaponType = WeaponTypeEnum.PrimaryWeapon;
+        ReloadTime = 3.5f;
+        WeaponType = WeaponTypeEnum.Sniper;
     }
     public void WasteAmmo(int ammo)
     {
@@ -47,7 +46,7 @@ public class SniperRifle : BaseWeapon
         Clip -= ammo;
         OnAmmoChange?.Invoke();
     }
-    public override bool AddAmmoToMag(int ammo)
+    public override bool AddAmmoToClip(int ammo)
     {
         if (Clip == ClipSize) return false;
         Clip += ammo;
@@ -101,12 +100,12 @@ public class SniperRifle : BaseWeapon
 
     public override void Reload()
     {
-        if (Clip <= 0 || CurrentAmmo == MaxAmmo)
+        if (Clip <= 0 || CurrentAmmo == MaxAmmo || IsReloading())
         {
             Debug.Log("Cannot reload. Either no reserve ammo or magazine is full.");
             return;
         }
-
+        ReloadLastTime = Time.time;
         int ammoToReload = Mathf.Min(MaxAmmo - CurrentAmmo, Clip);
         FullUpAmmo();
         WasteAddAmmo(ammoToReload);
@@ -116,7 +115,7 @@ public class SniperRifle : BaseWeapon
 
     private void Fire()
     {
-        if (Time.time < nextFireTime || IsReloading)
+        if (Time.time < nextFireTime || IsReloading())
         {
             return;
         }
@@ -124,7 +123,7 @@ public class SniperRifle : BaseWeapon
         // Устанавливаем время для следующего выстрела
         nextFireTime = Time.time + FireDelay;
 
-        if (CurrentAmmo <= 0 || IsReloading)
+        if (CurrentAmmo <= 0 || IsReloading())
         {
             Debug.Log("Out of ammo or reloading.");
             return;

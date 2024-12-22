@@ -18,20 +18,26 @@ public class WeaponInputHandler : MonoBehaviour
 
     private void HandleWeaponSelectionInput()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.PrimaryWeapon))
-            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.PrimaryWeapon]);
+        if (Input.GetKeyDown(KeyCode.Alpha1) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.Pistol))
+            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.Pistol]);
 
-        if (Input.GetKeyDown(KeyCode.Alpha2) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.SecondaryWeapon))
-            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.SecondaryWeapon]);
+        if (Input.GetKeyDown(KeyCode.Alpha2) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.Plasma))
+            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.Plasma]);
 
-        if (Input.GetKeyDown(KeyCode.Alpha3) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.MeleeWeapon))
-            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.MeleeWeapon]);
+        if (Input.GetKeyDown(KeyCode.Alpha3) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.Shotgun))
+            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.Shotgun]);
 
-        if (Input.GetKeyDown(KeyCode.Alpha4) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.ThrowingWeapon))
-            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.ThrowingWeapon]);
+        if (Input.GetKeyDown(KeyCode.Alpha4) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.Assault))
+            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.Assault]);
 
-        if (Input.GetKeyDown(KeyCode.Alpha5) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.PlantingWeapon))
-            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.PlantingWeapon]);
+        if (Input.GetKeyDown(KeyCode.Alpha5) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.Sniper))
+            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.Sniper]);
+
+        if (Input.GetKeyDown(KeyCode.Alpha6) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.Heavy))
+            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.Heavy]);
+
+        if (Input.GetKeyDown(KeyCode.Alpha7) && m_player.KvpWeapons.ContainsKey(WeaponTypeEnum.Rocket))
+            m_player.SelectWeapon(m_player.KvpWeapons[WeaponTypeEnum.Rocket]);
     }
 
     private void UseWeapon()
@@ -70,10 +76,7 @@ public class WeaponInputHandler : MonoBehaviour
     {
         if (m_player.CurrentWeapon != null)
         {
-            Debug.Log("Reloading weapon...");
             m_player.CurrentWeapon.Reload();
-            // Здесь вы можете добавить метод для перезарядки оружия, если он реализован
-            // m_player.CurrentWeapon.Reload();
         }
     }
 }

@@ -22,22 +22,21 @@ public class AI : MonoBehaviour
     private float nostand;
     public bool duck;
     private float getTargetTimer = 0;
-    private float getTargetEvent = 4;
-    private float getTargetMax = 4;
+    private float getTargetEvent = 4f;
+    private float getTargetMax = 7f;
     private float shootSpd;
     private float standNormal;
     private float standTarget;
     private float standFlag;
     private float shotChance;
     private float aimSpeed;
-    private uint diffRev;
-    public uint diff = 5; // difficulty
+    private uint difficultyReverse;
+    public uint difficulty = 5;
 
     private Player target = null;
 
     private float aimX = 0f;
     private float aimY = 0f;
-
     private void Start()
     {
         if (player == null) player = GetComponent<Player>();
@@ -47,8 +46,8 @@ public class AI : MonoBehaviour
 
         pathfinding = FindObjectOfType<Pathfinding2D>();
         path = new List<NodeWaypoint>();
-        aimX = playerMovement.transform.position.x + 100f;
-        aimY = playerMovement.transform.position.y - 50f;
+        aimX = playerMovement.transform.position.x + playerMovement.FacingDirection;
+        aimY = playerMovement.transform.position.y;
         getTargetEvent = 4f;
         getTargetTimer = 0;
         target = null;
@@ -60,16 +59,16 @@ public class AI : MonoBehaviour
 
     public void SetDiffStats()
     {
-        diffRev = 10 - diff;
-        standNormal = 0.01f * (diffRev * 0.3f);
-        standTarget = 0.03f * (diffRev * 0.3f);
-        standFlag = 0.005f * (diffRev * 0.3f);
-        shotChance = diff * 0.29f + 0.1f;
-        if (diff == 10)
+        difficultyReverse = 10 - difficulty;
+        standNormal = 0.01f * (difficultyReverse * 0.3f);
+        standTarget = 0.03f * (difficultyReverse * 0.3f);
+        standFlag = 0.005f * (difficultyReverse * 0.3f);
+        shotChance = difficulty * 0.29f + 0.1f;
+        if (difficulty == 10)
         {
             shotChance = 1000;
         }
-        aimSpeed = 0.3f * (diff * 0.1f + 0.1f);
+        aimSpeed = 0.3f * (difficulty * 0.1f + 0.1f);
     }
 
     private void HandleDeath(Player victim, Player killer)
@@ -82,14 +81,12 @@ public class AI : MonoBehaviour
         wpTimer = 0;
         if (!shouldJump && playerMovement.Jumping && Mathf.Abs(transform.position.y - nextWp.transform.position.y) > 2f)
         {
-            Debug.Log("Condition is not pass");
             return;
         }
         if (next != null)
         {
             curWp = nextWp;
             nextWp = next;
-            Debug.Log("Move to spawn node");
         }
         else
         {
@@ -199,49 +196,24 @@ public class AI : MonoBehaviour
 
     public List<NodeWaypoint> PathFind(NodeWaypoint targetWaypoint, uint maxLength)
     {
-        List<NodeWaypointPath> possiblePaths = new List<NodeWaypointPath>();
+        // Получаем путь с помощью метода поиска
+        List<NodeWaypoint> path = pathfinding.FindPath(curWp, targetWaypoint);
 
-        // Проходим через все соединения текущего узла
-        for (int i = 0; i < curWp.Connections.Count; i++)
+        // Проверка: путь не должен быть пустым
+        if (path == null || path.Count == 0)
         {
-            SearchNode(curWp.Connections[i], targetWaypoint, new List<NodeWaypoint>(), possiblePaths);
+            Debug.LogWarning("Pathfinding returned an empty path.");
+            return new List<NodeWaypoint>();
         }
 
-        // Сортируем найденные пути по дистанции
-        possiblePaths.Sort((a, b) => a.dist.CompareTo(b.dist));
-
-        // Ограничиваем максимальной длиной пути
-        if (possiblePaths.Count > maxLength)
+        // Проверка: ограничиваем путь длиной maxLength
+        if (path.Count > maxLength)
         {
-            possiblePaths = possiblePaths.Take((int)maxLength).ToList();
+            Debug.LogWarning("Path exceeds maximum length. Trimming the path.");
+            path = path.Take((int)maxLength).ToList();
         }
 
-        // Возвращаем путь, который мы нашли
-        return possiblePaths.Count > 0 ? possiblePaths[0].path : new List<NodeWaypoint>();
-    }
-
-    private void SearchNode(NodeWaypoint currentNode, NodeWaypoint target, List<NodeWaypoint> currentPath, List<NodeWaypointPath> paths)
-    {
-        // Добавляем текущий узел в путь
-        currentPath.Add(currentNode);
-
-        // Если достигли целевого узла
-        if (currentNode == target)
-        {
-            // Создаём новый путь и добавляем его в список возможных путей
-            paths.Add(new NodeWaypointPath(new List<NodeWaypoint>(currentPath)));
-            return;
-        }
-
-        // Рекурсивно ищем путь от текущего узла к целевому среди его соединений
-        foreach (var connectedNode in currentNode.Connections)
-        {
-            // Проверяем, не был ли узел уже посещён
-            if (!currentPath.Contains(connectedNode))
-            {
-                SearchNode(connectedNode, target, currentPath, paths);
-            }
-        }
+        return path;
     }
 
     private void Update()
@@ -250,9 +222,9 @@ public class AI : MonoBehaviour
         {
             getTargetTimer = 0;
         }
-        if (diff > 0)
+        if (difficulty > 0)
         {
-            ++getTargetTimer;
+            getTargetTimer += Time.deltaTime;
         }
         if (!playerMovement.Jumping && stand <= 0)
         {
@@ -267,10 +239,11 @@ public class AI : MonoBehaviour
             playerMovement.keys = 0;
             return;
         }
-        if (getTargetTimer == getTargetEvent && player.CurrentWeapon != null)
+        if (getTargetTimer >= getTargetEvent && player.CurrentWeapon != null)
         {
             List<(float dist, Player player, float rot)> playerTargets = new List<(float dist, Player player, float rot)>();
             Player[] targets = FindObjectsByType<Player>(FindObjectsSortMode.None);
+
             for (int i = 0; i < targets.Length; ++i)
             {
                 if (targets[i] != player && !targets[i].IsDead && targets[i].PlayerTeam != player.PlayerTeam)
@@ -282,25 +255,32 @@ public class AI : MonoBehaviour
                     }
                 }
             }
+
+            List<(float dist, Player player, float rot)> potentialTargets = new List<(float dist, Player player, float rot)>();
             for (int i = 0; i < playerTargets.Count; i++)
             {
                 var target = playerTargets[i];
 
                 // Определяем позицию начала луча и направление
-                Vector3 startPosition = new Vector3(transform.position.x, transform.position.y, 0); // Исходная позиция
-                Vector3 targetPosition = new Vector3(target.player.transform.position.x, target.player.transform.position.y, 0); // Позиция цели
+                Vector3 startPosition = player.CurrentWeapon.AttackPoint.position;
+                Vector3 targetPosition = target.player.transform.position;
+                Vector3 direction = (targetPosition - startPosition).normalized;
 
-                Vector3 direction = (target.player.transform.position - transform.position).normalized;
-                RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, target.dist);
-                if (hit.collider != null && !hit.collider.CompareTag("Player"))
+                // Выполняем Raycast с учетом LayerMask
+                RaycastHit2D hit = Physics2D.Raycast(startPosition, direction, target.dist, player.CurrentWeapon.GetHitLayerMask());
+
+                // Проверяем, что луч достигает игрока и не блокируется стеной
+                if (hit.collider != null && hit.collider.CompareTag("Player") && hit.collider.gameObject == target.player.gameObject)
                 {
-                    playerTargets.RemoveAt(i);
+                    potentialTargets.Add(target);
                 }
             }
-            if (playerTargets.Count != 0)
+
+            // Если есть потенциальные цели, выбираем ближайшую
+            if (potentialTargets.Count != 0)
             {
-                playerTargets.Sort((a, b) => a.dist.CompareTo(b.dist));
-                target = playerTargets[0].player;
+                potentialTargets.Sort((a, b) => a.dist.CompareTo(b.dist));
+                target = potentialTargets[0].player;
             }
             else
             {
@@ -309,19 +289,33 @@ public class AI : MonoBehaviour
         }
         if (target != null)
         {
-            focusX = target.IsDead ? target.transform.position.x : target.transform.position.x;
-            focusY = target.IsDead ? target.transform.position.y : target.transform.position.y;
+            focusX = target.transform.position.x;
+            focusY = target.transform.position.y;
             aimX += (focusX - aimX) * aimSpeed;
             aimY += (focusY - aimY) * aimSpeed;
-            playerMovement.RotateHandTowards(Mathf.Atan2(aimY, aimX) * Mathf.Rad2Deg);
+            Vector2 aimPosition = new Vector2(aimX, aimY);
+            Vector2 direction = aimPosition - (Vector2)player.CurrentWeapon.AttackPoint.position;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            playerMovement.RotateHandTowards(angle);
         }
         else
         {
-            focusX = transform.position.x + playerMovement.xVel;
-            focusY = transform.position.y + playerMovement.yVel;
+            if (playerMovement.xVel == 0 && playerMovement.yVel == 0)
+            {
+                focusX = playerMovement.transform.position.x + playerMovement.FacingDirection;
+                focusY = playerMovement.transform.position.y;
+            }
+            else
+            {
+                focusX = playerMovement.transform.position.x + playerMovement.xVel;
+                focusY = playerMovement.transform.position.y + playerMovement.yVel;
+            }
             aimX += (focusX - aimX) * 0.4f;
             aimY += (focusY - aimY) * 0.3f;
-            playerMovement.RotateHandTowards(Mathf.Atan2(aimY, aimX) * Mathf.Rad2Deg);
+            Vector2 aimPosition = new Vector2(aimX, aimY);
+            Vector2 direction = aimPosition - (Vector2)player.CurrentWeapon.AttackPoint.position;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            playerMovement.RotateHandTowards(angle);
         }
         if (Game.Instance.Mode == Game.GameMode.FlagCapture)
         {
@@ -343,9 +337,9 @@ public class AI : MonoBehaviour
         }
         if (stand <= 0 && nostand <= 0 && !playerMovement.Jumping && Random.value < (player.HasFlag() ? standFlag : (target == null ? standNormal : standTarget)))
         {
-            stand = Random.Range(2f, 6f) * (diffRev * 0.1f);
+            stand = Random.Range(2f, 6f) * (difficultyReverse * 0.1f);
             duck = Random.value < 0.5f;
-            nostand = stand + Random.Range(2f, 6f) * (diff * 0.1f);
+            nostand = stand + Random.Range(2f, 6f) * (difficulty * 0.1f);
         }
         if (stand > 0)
         {
@@ -363,7 +357,7 @@ public class AI : MonoBehaviour
         {
             nostand -= Time.deltaTime;
         }
-        if (diff != 0f)
+        if (difficulty != 0f)
         {
             if (!(nextWp.transform.position.x > transform.position.x - 0.1f && nextWp.transform.position.x < transform.position.x + 0.1f))
             {
@@ -408,7 +402,7 @@ public class AI : MonoBehaviour
                 }
             }
         }
-        if (target != null && diff != 0)
+        if (target != null && difficulty != 0)
         {
             shootSpd = 0.05f + (1f - (player.CurrentWeapon.FireDelay > 0.9f ? 0.9f : player.CurrentWeapon.FireDelay)) * 0.2f;
             shootSpd *= shotChance;
@@ -416,9 +410,25 @@ public class AI : MonoBehaviour
             {
                 player.CurrentWeapon.UsePrimaryAttack();
             }
+            else if (player.CurrentWeapon.Clip <= 0)
+            {
+                SwitchWeapon();
+            }
         }
     }
 
+    private void SwitchWeapon()
+    {
+        foreach (var kvpWeapon in player.KvpWeapons)
+        {
+            if (kvpWeapon.Value.CurrentAmmo <= 0 && kvpWeapon.Value.Clip <= 0)
+            {
+                continue;
+            }
+            player.SelectWeapon(kvpWeapon.Value);
+        }
+    }
+#if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
         GUIStyle style = new GUIStyle();
@@ -458,6 +468,9 @@ public class AI : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawLine(transform.position, target.transform.position);
             Gizmos.DrawSphere(target.transform.position, 0.3f);
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(new Vector3(aimX, aimY, 0f), 0.3f);
         }
     }
+#endif
 }

@@ -6,12 +6,13 @@ using UnityEngine;
 using static Player;
 public enum WeaponTypeEnum
 {
-    None,
-    PrimaryWeapon,
-    SecondaryWeapon,
-    MeleeWeapon,
-    ThrowingWeapon,
-    PlantingWeapon
+    Pistol,
+    Plasma,
+    Shotgun,
+    Assault,
+    Sniper,
+    Heavy,
+    Rocket
 }
 public abstract class BaseWeapon : MonoBehaviour
 {
@@ -23,7 +24,8 @@ public abstract class BaseWeapon : MonoBehaviour
     public int Damage { get; protected set; }
     public float FireDelay { get; protected set; }
     public float FireLastTime { get; protected set; }
-    public bool IsRapid { get; protected set; }
+    public float ReloadTime { get; protected set; } = 0;
+    public float ReloadLastTime { get; protected set; }
 
     // Параметры патронов
     public int MaxAmmo { get; protected set; } = 30;  // Вместимость магазина
@@ -95,8 +97,12 @@ public abstract class BaseWeapon : MonoBehaviour
         }
         Player = null;
     }
-    public abstract bool AddAmmoToMag(int ammo);
+    public abstract bool AddAmmoToClip(int ammo);
     public abstract void Reload();
+    public virtual bool IsReloading()
+    {
+        return Time.time - ReloadLastTime < ReloadTime;
+    }
     public LayerMask GetHitLayerMask() => hitMask;
     private void OnDestroy()
     {

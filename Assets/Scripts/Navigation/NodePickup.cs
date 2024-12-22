@@ -20,6 +20,7 @@ public class NodePickup : MonoBehaviour
     private List<string> weaponPaths = new List<string>
     {
         "Pickups/Glock",
+        "Pickups/AssaultRifle",
         "Pickups/SniperRifle"
     };
 
@@ -43,7 +44,7 @@ public class NodePickup : MonoBehaviour
     private BasePickup currentPickup; // Логика текущего пикапа
     private float spawnTimer;
 
-    void Awake()
+    private void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         boxCollider2D = GetComponent<BoxCollider2D>();
@@ -52,7 +53,7 @@ public class NodePickup : MonoBehaviour
         SetPickup();
     }
 
-    void Update()
+    private void Update()
     {
         if (autoRespawn && spawnedPickup == null)
         {
@@ -66,7 +67,7 @@ public class NodePickup : MonoBehaviour
         }
     }
 
-    void SetPickup()
+    private void SetPickup()
     {
         // Устанавливаем текущий пикап и загружаем его из ресурсов
         string path = GetPrefabPath();
@@ -104,7 +105,7 @@ public class NodePickup : MonoBehaviour
         }
     }
 
-    string GetPrefabPath()
+    private string GetPrefabPath()
     {
         switch (pickupType)
         {
@@ -121,7 +122,7 @@ public class NodePickup : MonoBehaviour
         }
     }
 
-    string GetRandomPath(List<string> paths)
+    private string GetRandomPath(List<string> paths)
     {
         if (paths == null || paths.Count == 0)
         {
@@ -141,7 +142,7 @@ public class NodePickup : MonoBehaviour
                 BaseWeapon weapon = spawnedPickup.GetComponent<BaseWeapon>();
                 if (player.KvpWeapons.ContainsKey(weapon.WeaponType))
                 {
-                    if (!player.KvpWeapons[weapon.WeaponType].AddAmmoToMag(weapon.Clip)) return;
+                    if (!player.KvpWeapons[weapon.WeaponType].AddAmmoToClip(weapon.MaxAmmo)) return;
                     Destroy(weapon.gameObject);
                     spawnedPickup = null;
                     spriteRenderer.sprite = null;
